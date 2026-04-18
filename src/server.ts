@@ -17,7 +17,8 @@ export class ChatAgent extends AIChatAgent<Env> {
   // Max messages to keep in history
   maxPersistedMessages = 100;
 
-  onStart() {
+onStart() {
+    try {
     this
       .sql`CREATE TABLE IF NOT EXISTS marketing_news (id INTEGER PRIMARY KEY, headline TEXT, subheadline TEXT, ctaText TEXT)`;
     this
@@ -45,14 +46,17 @@ export class ChatAgent extends AIChatAgent<Env> {
     this
       .sql`CREATE INDEX IF NOT EXISTS idx_diary_timestamp ON agent_diary (timestamp)`;
 
-    this.sql`CREATE TABLE IF NOT EXISTS users (
+    this
+      .sql`CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY,
       email TEXT UNIQUE,
       name TEXT,
+      password TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`;
 
-    this.sql`CREATE TABLE IF NOT EXISTS user_sessions (
+    this
+      .sql`CREATE TABLE IF NOT EXISTS user_sessions (
       id INTEGER PRIMARY KEY,
       user_email TEXT,
       session_id TEXT,
@@ -63,6 +67,9 @@ export class ChatAgent extends AIChatAgent<Env> {
 
     this
       .sql`CREATE INDEX IF NOT EXISTS idx_sessions_user ON user_sessions(user_email)`;
+    } catch (e) {
+      console.error("onStart error:", e);
+    }
 
     this.mcp.configureOAuthCallback({
       customHandler: (result) => {
