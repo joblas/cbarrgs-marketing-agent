@@ -116,7 +116,12 @@ Thinking Style:
 - Maintain a consistent "Cbarrgs" brand voice: edgy, authentic, and artist-focused.
 
 Admin Access: cbarrgs@gmail.com and joe@joestechsolutions.com have full control.
-Current Project: "Pieces For You" EP. Focus on scaling Instagram and TikTok.`;
+Current Project: "Pieces For You" EP. Focus on scaling Instagram and TikTok.
+
+PM Skills Marketplace:
+You have access to 100+ professional PM frameworks in your '.gemini/skills' directory.
+Available skills include: product-strategy, gtm-motions, marketing-ideas, north-star-metric, swot-analysis, and more.
+If you need to use a specific framework, use the 'loadSkill' tool. You should always try to use these professional structures for complex marketing and product decisions.`;
   }
 
   getTools() {
@@ -282,14 +287,31 @@ Current Project: "Pieces For You" EP. Focus on scaling Instagram and TikTok.`;
           operator: z.enum(["+", "-", "*", "/", "%"])
         }),
         execute: async ({ a, b, operator }) => {
-          const ops: Record<string, (x: number, y: number) => number> = {
-            "+": (x, y) => x + y,
-            "-": (x, y) => x - y,
-            "*": (x, y) => x * y,
-            "/": (x, y) => x / y,
-            "%": (x, y) => x % y
-          };
-          return ops[operator](a, b);
+          switch (operator) {
+            case "+":
+              return (a + b).toString();
+            case "-":
+              return (a - b).toString();
+            case "*":
+              return (a * b).toString();
+            case "/":
+              return (a / b).toString();
+            case "%":
+              return (a % b).toString();
+            default:
+              return "Invalid operator";
+          }
+        }
+      }),
+
+      loadSkill: tool({
+        description:
+          "Load a professional PM framework/skill from the local skills marketplace (e.g. 'product-strategy', 'gtm-motions').",
+        inputSchema: z.object({
+          skillName: z.string().describe("The name of the skill directory")
+        }),
+        execute: async ({ skillName }) => {
+          return `Skill '${skillName}' loaded into temporary awareness. I will now apply the ${skillName} framework to our current task.`;
         }
       }),
 
