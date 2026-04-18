@@ -406,7 +406,11 @@ function Chat({ user, onLogout }: ChatProps) {
     onError: useCallback(
       (error: Event) => {
         console.error("WebSocket error:", error);
-        toasts.add({ title: "Connection error", description: "Check console for details", variant: "error" });
+        toasts.add({
+          title: "Connection error",
+          description: "Check console for details",
+          variant: "error"
+        });
       },
       [toasts]
     ),
