@@ -33,10 +33,12 @@ import {
   PlugsConnectedIcon,
   PlusIcon,
   SignInIcon,
+  SignOutIcon,
   XIcon,
   WrenchIcon,
   PaperclipIcon,
-  ImageIcon
+  ImageIcon,
+  UsersIcon
 } from "@phosphor-icons/react";
 
 // ── Attachment helpers ────────────────────────────────────────────────
@@ -218,9 +220,153 @@ function ToolPartView({
   return null;
 }
 
+// ── Auth / Login Screen ───────────────────────────────────────────
+
+interface LoginProps {
+  onLogin: (email: string, name: string, password: string) => void;
+}
+
+function LoginScreen({ onLogin }: LoginProps) {
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isSignup, setIsSignup] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !email.includes("@")) {
+      setError("Please enter a valid email");
+      return;
+    }
+    if (!password || password.length < 4) {
+      setError("Password must be at least 4 characters");
+      return;
+    }
+    if (isSignup) {
+      if (!name) {
+        setError("Please enter your name");
+        return;
+      }
+      if (password !== confirmPassword) {
+        setError("Passwords do not match");
+        return;
+      }
+    }
+    setError("");
+    setLoading(true);
+    setTimeout(() => {
+      onLogin(email, name || email.split("@")[0], password);
+      setLoading(false);
+    }, 500);
+  };
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-[#0D0D0D]">
+      <div className="w-full max-w-md p-8">
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-xl flex items-center justify-center overflow-hidden">
+            <img
+              src="/69bf9097-f272-4081-92a5-b04882068bdc.png"
+              alt="Cbarrgs"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <h1 className="text-2xl font-bold text-white mb-2">
+            Cbarrgs Marketing Agent
+          </h1>
+          <p className="text-[#888] text-sm">
+            Sign in to start your marketing session
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="your@email.com"
+              className="w-full px-4 py-3 bg-[#1A1A1A] border border-[#333] rounded-lg text-white placeholder:text-[#666] focus:outline-none focus:border-amber-500"
+            />
+          </div>
+
+          {isSignup && (
+            <div>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your name"
+                className="w-full px-4 py-3 bg-[#1A1A1A] border border-[#333] rounded-lg text-white placeholder:text-[#666] focus:outline-none focus:border-amber-500"
+              />
+            </div>
+          )}
+
+          <div>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              className="w-full px-4 py-3 bg-[#1A1A1A] border border-[#333] rounded-lg text-white placeholder:text-[#666] focus:outline-none focus:border-amber-500"
+            />
+          </div>
+
+          {isSignup && (
+            <div>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm password"
+                className="w-full px-4 py-3 bg-[#1A1A1A] border border-[#333] rounded-lg text-white placeholder:text-[#666] focus:outline-none focus:border-amber-500"
+              />
+            </div>
+          )}
+
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 bg-amber-500 text-black font-semibold rounded-lg hover:bg-amber-400 transition-colors disabled:opacity-50"
+          >
+            {loading ? "..." : isSignup ? "Sign Up" : "Sign In"}
+          </button>
+        </form>
+
+        <p className="text-center mt-6 text-[#666] text-sm">
+          {isSignup ? "Already have an account?" : "New to Cbarrgs?"}{" "}
+          <button
+            onClick={() => setIsSignup(!isSignup)}
+            className="text-amber-500 hover:underline"
+          >
+            {isSignup ? "Sign In" : "Sign Up"}
+          </button>
+        </p>
+
+        <div className="mt-8 pt-6 border-t border-[#262626]">
+          <p className="text-center text-[#555] text-xs">
+            Session is saved locally. Both users can chat with the agent
+            independently.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Main chat ─────────────────────────────────────────────────────────
 
-function Chat() {
+interface ChatProps {
+  user: { email: string; name: string; password?: string };
+  onLogout: () => void;
+}
+
+function Chat({ user, onLogout }: ChatProps) {
   const [connected, setConnected] = useState(false);
   const [input, setInput] = useState("");
   const [showDebug, setShowDebug] = useState(false);
@@ -228,7 +374,7 @@ function Chat() {
   const [isDragging, setIsDragging] = useState(false);
   const [sessionId, setSessionId] = useState(() => {
     const saved = localStorage.getItem("agent_session_id");
-    return saved || "default";
+    return saved || user.email.split("@")[0];
   });
   const [showSettings, setShowSettings] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -472,15 +618,32 @@ function Chat() {
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <h1 className="flex items-center gap-3 text-lg font-bold tracking-tight text-white">
-              <div className="w-8 h-8 rounded-full bg-[#1DB954] flex items-center justify-center shadow-lg shadow-[#1DB954]/20">
-                <BrainIcon size={18} weight="bold" className="text-black" />
+              <div className="w-8 h-8 rounded-md overflow-hidden shadow-lg">
+                <img
+                  src="/69bf9097-f272-4081-92a5-b04882068bdc.png"
+                  alt="Cbarrgs"
+                  className="w-full h-full object-cover"
+                />
               </div>
               Cbarrgs Marketing Agent
             </h1>
             <Badge variant="secondary">
               <ChatCircleDotsIcon size={12} weight="bold" className="mr-1" />
-              AI Chat
+              {user.name}
             </Badge>
+            <Button
+              variant="secondary"
+              size="sm"
+              className="text-amber-500"
+              onClick={() =>
+                alert(
+                  "Use the agent: createGroupChat tool to start a group chat"
+                )
+              }
+            >
+              <UsersIcon size={14} className="mr-1" />
+              Group
+            </Button>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5">
@@ -519,6 +682,13 @@ function Chat() {
                 icon={<GearIcon size={16} />}
                 onClick={() => setShowSettings(!showSettings)}
                 aria-label="Settings"
+              />
+              <Button
+                variant="secondary"
+                shape="square"
+                icon={<SignOutIcon size={16} />}
+                onClick={onLogout}
+                aria-label="Logout"
               />
             </div>
             <div className="relative" ref={mcpPanelRef}>
@@ -1032,6 +1202,36 @@ function Chat() {
 }
 
 export default function App() {
+  const [user, setUser] = useState<{
+    email: string;
+    name: string;
+    password?: string;
+  } | null>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("cbarrgs_user");
+    if (saved) {
+      try {
+        setUser(JSON.parse(saved));
+      } catch {}
+    }
+  }, []);
+
+  const handleLogin = (email: string, name: string, password: string) => {
+    const userData = { email, name, password };
+    setUser(userData);
+    localStorage.setItem("cbarrgs_user", JSON.stringify(userData));
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem("cbarrgs_user");
+  };
+
+  if (!user) {
+    return <LoginScreen onLogin={handleLogin} />;
+  }
+
   return (
     <Toasty>
       <Suspense
@@ -1041,7 +1241,7 @@ export default function App() {
           </div>
         }
       >
-        <Chat />
+        <Chat user={user} onLogout={handleLogout} />
       </Suspense>
     </Toasty>
   );

@@ -45,6 +45,25 @@ export class ChatAgent extends AIChatAgent<Env> {
     this
       .sql`CREATE INDEX IF NOT EXISTS idx_diary_timestamp ON agent_diary (timestamp)`;
 
+    this.sql`CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY,
+      email TEXT UNIQUE,
+      name TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`;
+
+    this.sql`CREATE TABLE IF NOT EXISTS user_sessions (
+      id INTEGER PRIMARY KEY,
+      user_email TEXT,
+      session_id TEXT,
+      is_group BOOLEAN DEFAULT FALSE,
+      participants TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`;
+
+    this
+      .sql`CREATE INDEX IF NOT EXISTS idx_sessions_user ON user_sessions(user_email)`;
+
     this.mcp.configureOAuthCallback({
       customHandler: (result) => {
         if (result.authSuccess) {
@@ -393,6 +412,74 @@ Strategic marketing agent for Cbarrgs ecosystem.
 
           await this.schedule(when, "executeTask", task.description);
           return `Task scheduled: ${task.description}`;
+        }
+      }),
+
+      signup: tool({
+        description: "Sign up a new user for the marketing agent.",
+        inputSchema: z.object({
+          email: z.string().email().describe("User email address"),
+          name: z.string().describe("User name or nickname")
+        }),
+        execute: async ({ email, name }) => {
+          const existing = [
+            ...this.sql`SELECT id FROM users WHERE email = ${email}`
+          ];
+          if (existing.length > 0) {
+            return `User ${email} already exists. Please use /login instead.`;
+          }
+          this.sql`INSERT INTO users (email, name) VALUES (${email}, ${name})`;
+          return `Welcome ${name}! You've been signed up. Your session: ${email}`;
+        }
+      }),
+
+      login: tool({
+        description: "Login an existing user and start their session.",
+        inputSchema: z.object({
+          email: z.string().email().describe("User email address")
+        }),
+        execute: async ({ email }) => {
+          const user = [
+            ...this.sql`SELECT name FROM users WHERE email = ${email}`
+          ];
+          if (user.length === 0) {
+            return `User not found. Please /signup first.`;
+          }
+          return `Welcome back ${user[0].name}! Ready to help with your marketing.`;
+        }
+      }),
+
+      createGroupChat: tool({
+        description: "Start a group chat with multiple users.",
+        inputSchema: z.object({
+          participants: z
+            .array(z.string().email())
+            .describe("List of participant emails")
+        }),
+        execute: async ({ participants }) => {
+          const sessionId = `group_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+          this
+            .sql`INSERT INTO user_sessions (user_email, session_id, is_group, participants) VALUES (${participants[0]}, ${sessionId}, TRUE, ${participants.join(",")})`;
+          return `Group chat created! Session: ${sessionId}\nParticipants: ${participants.join(", ")}`;
+        }
+      }),
+
+      listMyChats: tool({
+        description: "List all your chats and group chats.",
+        inputSchema: z.object({}),
+        execute: async () => {
+          const chats = [
+            ...this
+              .sql`SELECT session_id, is_group, participants FROM user_sessions ORDER BY created_at DESC LIMIT 20`
+          ];
+          if (chats.length === 0)
+            return "No chats yet. Login or create a group chat.";
+          return chats
+            .map(
+              (c) =>
+                `${c.is_group ? "[GROUP]" : "[1:1]"} ${c.session_id} - ${c.participants || "You"}`
+            )
+            .join("\n");
         }
       })
     };
