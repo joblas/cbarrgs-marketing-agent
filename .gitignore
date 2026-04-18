@@ -144,5 +144,8 @@ dist
 
 
 .dev.vars*
-!.dev.vars.example
+!*.dev.vars.example
 !.env.example
+
+# Agent context folders (local only)
+.gemini/

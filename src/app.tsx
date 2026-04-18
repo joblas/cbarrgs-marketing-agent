@@ -475,7 +475,7 @@ function Chat() {
               <div className="w-8 h-8 rounded-full bg-[#1DB954] flex items-center justify-center shadow-lg shadow-[#1DB954]/20">
                 <BrainIcon size={18} weight="bold" className="text-black" />
               </div>
-              Cbarrgs-Marketing
+              Cbarrgs Marketing Agent
             </h1>
             <Badge variant="secondary">
               <ChatCircleDotsIcon size={12} weight="bold" className="mr-1" />
@@ -751,7 +751,7 @@ function Chat() {
           {messages.length === 0 && (
             <Empty
               icon={<BrainIcon size={48} className="text-[#1DB954] mb-4" />}
-              title="Cbarrgs Marketing Intelligence"
+              title="Cbarrgs Marketing Agent Assistant"
               contents={
                 <div className="flex flex-col items-center gap-6">
                   <div className="text-[#B3B3B3] text-center max-w-sm text-sm">
