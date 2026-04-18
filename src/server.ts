@@ -1,6 +1,6 @@
 import { createWorkersAI } from "workers-ai-provider";
 import { callable, routeAgentRequest, type Schedule } from "agents";
-import { getSchedulePrompt, scheduleSchema } from "agents/schedule";
+import { scheduleSchema } from "agents/schedule";
 import { AIChatAgent, type OnChatMessageOptions } from "@cloudflare/ai-chat";
 import {
   stepCountIs,
@@ -37,6 +37,33 @@ export class ChatAgent extends AIChatAgent<Env> {
         );
       }
     });
+  }
+
+  async performSearch(query: string): Promise<string> {
+    try {
+      const res = await fetch(
+        `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`,
+        {
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+          }
+        }
+      );
+      if (!res.ok) return "Search failed";
+      const html = await res.text();
+      const $ = cheerio.load(html);
+      const results: string[] = [];
+      $(".result__body").each((i, el) => {
+        if (i >= 5) return;
+        const title = $(el).find(".result__title").text().trim();
+        const snippet = $(el).find(".result__snippet").text().trim();
+        const link = $(el).find(".result__url").text().trim();
+        results.push(`Title: ${title}\nSnippet: ${snippet}\nURL: ${link}`);
+      });
+      return results.length > 0 ? results.join("\n\n") : "No results found.";
+    } catch (e: unknown) {
+      return `Error searching: ${e instanceof Error ? e.message : String(e)}`;
+    }
   }
 
   getSystemPrompt() {
@@ -82,6 +109,16 @@ Current Project: "Pieces For You" EP. Focus on scaling Instagram and TikTok.`;
         }
       }),
 
+      searchWeb: tool({
+        description: "Search the web for news, trends, and information.",
+        inputSchema: z.object({
+          query: z.string().describe("The search query")
+        }),
+        execute: async ({ query }) => {
+          return await this.performSearch(query);
+        }
+      }),
+
       searchSocialStats: tool({
         description:
           "Search for social media stats (followers, engagement) when direct scraping is blocked.",
@@ -93,8 +130,7 @@ Current Project: "Pieces For You" EP. Focus on scaling Instagram and TikTok.`;
         }),
         execute: async ({ platform, username }) => {
           const query = `${platform} ${username} follower count statistics`;
-          const searchResult = await this.tools.searchWeb.execute({ query });
-          return `Search results for ${platform} ${username} stats: ${searchResult}`;
+          return await this.performSearch(query);
         }
       }),
 
@@ -114,43 +150,6 @@ Current Project: "Pieces For You" EP. Focus on scaling Instagram and TikTok.`;
             return text.substring(0, 5000);
           } catch (e: unknown) {
             return `Error scraping ${url}: ${e instanceof Error ? e.message : String(e)}`;
-          }
-        }
-      }),
-
-      searchWeb: tool({
-        description: "Perform a web search for trends or industry news.",
-        inputSchema: z.object({
-          query: z.string().describe("The search query")
-        }),
-        execute: async ({ query }) => {
-          try {
-            const res = await fetch(
-              `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`,
-              {
-                headers: {
-                  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-                }
-              }
-            );
-            if (!res.ok) return "Search failed";
-            const html = await res.text();
-            const $ = cheerio.load(html);
-            let results: string[] = [];
-            $(".result__body").each((i, el) => {
-              if (i >= 5) return;
-              const title = $(el).find(".result__title").text().trim();
-              const snippet = $(el).find(".result__snippet").text().trim();
-              const link = $(el).find(".result__url").text().trim();
-              results.push(
-                `Title: ${title}\nSnippet: ${snippet}\nURL: ${link}`
-              );
-            });
-            return results.length > 0
-              ? results.join("\n\n")
-              : "No results found.";
-          } catch (e: unknown) {
-            return `Error searching: ${e instanceof Error ? e.message : String(e)}`;
           }
         }
       }),
