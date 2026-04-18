@@ -111,19 +111,19 @@ function ToolPartView({
   // Completed
   if (part.state === "output-available") {
     return (
-      <div className="flex justify-start">
-        <Surface className="max-w-[85%] px-4 py-2.5 rounded-xl ring ring-kumo-line">
+      <div className="flex justify-start animate-in fade-in duration-300">
+        <Surface className="max-w-[85%] px-4 py-2.5 rounded-xl bg-[#121212] border border-[#282828] shadow-sm">
           <div className="flex items-center gap-2 mb-1">
-            <GearIcon size={14} className="text-kumo-inactive" />
-            <Text size="xs" variant="secondary" bold>
-              {toolName}
-            </Text>
-            <Badge variant="secondary">Done</Badge>
+            <GearIcon size={14} className="text-[#1DB954]" />
+            <span className="text-[#B3B3B3] font-bold text-xs">{toolName}</span>
+            <Badge className="bg-[#1DB954]/20 text-[#1DB954] border-none text-[10px]">
+              Done
+            </Badge>
           </div>
-          <div className="font-mono">
-            <Text size="xs" variant="secondary">
-              {JSON.stringify(part.output, null, 2)}
-            </Text>
+          <div className="font-mono overflow-hidden">
+            <span className="text-[#B3B3B3] truncate block text-xs">
+              {JSON.stringify(part.output)}
+            </span>
           </div>
         </Surface>
       </div>
@@ -453,7 +453,7 @@ function Chat() {
 
   return (
     <div
-      className="flex flex-col h-screen bg-kumo-elevated relative"
+      className="flex flex-col h-screen bg-black relative text-white selection:bg-[#1DB954]/30"
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -468,15 +468,13 @@ function Chat() {
       )}
 
       {/* Header */}
-      <header className="px-5 py-4 bg-kumo-base border-b border-kumo-line">
+      <header className="px-5 py-4 bg-black/80 backdrop-blur-xl border-b border-[#282828] sticky top-0 z-40">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <h1 className="flex items-center gap-3 text-lg font-semibold text-kumo-default">
-              <img
-                src="/logo.png"
-                alt="Cbarrgs Logo"
-                className="h-10 w-auto object-contain invert dark:invert-0"
-              />
+            <h1 className="flex items-center gap-3 text-lg font-bold tracking-tight text-white">
+              <div className="w-8 h-8 rounded-full bg-[#1DB954] flex items-center justify-center shadow-lg shadow-[#1DB954]/20">
+                <BrainIcon size={18} weight="bold" className="text-black" />
+              </div>
               Cbarrgs-Marketing
             </h1>
             <Badge variant="secondary">
@@ -752,31 +750,37 @@ function Chat() {
         <div className="max-w-3xl mx-auto px-5 py-6 space-y-5">
           {messages.length === 0 && (
             <Empty
-              icon={<ChatCircleDotsIcon size={32} />}
-              title="Start a conversation"
+              icon={<BrainIcon size={48} className="text-[#1DB954] mb-4" />}
+              title="Cbarrgs Marketing Intelligence"
               contents={
-                <div className="flex flex-wrap justify-center gap-2">
-                  {[
-                    "What's the weather in Paris?",
-                    "What timezone am I in?",
-                    "Calculate 5000 * 3",
-                    "Remind me in 5 minutes to take a break"
-                  ].map((prompt) => (
-                    <Button
-                      key={prompt}
-                      variant="outline"
-                      size="sm"
-                      disabled={isStreaming}
-                      onClick={() => {
-                        sendMessage({
-                          role: "user",
-                          parts: [{ type: "text", text: prompt }]
-                        });
-                      }}
-                    >
-                      {prompt}
-                    </Button>
-                  ))}
+                <div className="flex flex-col items-center gap-6">
+                  <div className="text-[#B3B3B3] text-center max-w-sm text-sm">
+                    Strategic AI for the Cbarrgs ecosystem. Scale to 37k,
+                    automate GTM, and refine the brand vibe.
+                  </div>
+                  <div className="flex flex-wrap justify-center gap-3">
+                    {[
+                      "Plan 'Pieces For You' Instagram rollout",
+                      "Analyze current social media trends",
+                      "Draft TikTok script for new merch",
+                      "How do we get to 37k followers?"
+                    ].map((prompt) => (
+                      <Button
+                        key={prompt}
+                        variant="outline"
+                        className="bg-[#121212] border-[#282828] hover:border-[#1DB954] hover:bg-[#1DB954]/5 text-white rounded-full px-5 transition-all"
+                        disabled={isStreaming}
+                        onClick={() => {
+                          sendMessage({
+                            role: "user",
+                            parts: [{ type: "text", text: prompt }]
+                          });
+                        }}
+                      >
+                        {prompt}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
               }
             />
@@ -879,8 +883,11 @@ function Chat() {
 
                     if (isUser) {
                       return (
-                        <div key={i} className="flex justify-end">
-                          <div className="max-w-[85%] px-4 py-2.5 rounded-2xl rounded-br-md bg-kumo-contrast text-kumo-inverse leading-relaxed">
+                        <div
+                          key={i}
+                          className="flex justify-end animate-in fade-in slide-in-from-right-4 duration-300"
+                        >
+                          <div className="max-w-[85%] px-4 py-2.5 rounded-2xl rounded-br-none bg-[#1DB954] text-black font-medium shadow-lg shadow-[#1DB954]/10 leading-relaxed">
                             {text}
                           </div>
                         </div>
@@ -888,10 +895,13 @@ function Chat() {
                     }
 
                     return (
-                      <div key={i} className="flex justify-start">
-                        <div className="max-w-[85%] rounded-2xl rounded-bl-md bg-kumo-base text-kumo-default leading-relaxed">
+                      <div
+                        key={i}
+                        className="flex justify-start animate-in fade-in slide-in-from-left-4 duration-300"
+                      >
+                        <div className="max-w-[85%] rounded-2xl rounded-bl-none bg-[#121212] border border-[#282828] text-white leading-relaxed shadow-xl">
                           <Streamdown
-                            className="sd-theme rounded-2xl rounded-bl-md p-3"
+                            className="sd-theme rounded-2xl rounded-bl-none p-4"
                             plugins={{ code }}
                             controls={false}
                             isAnimating={isLastAssistant && isStreaming}
@@ -910,14 +920,13 @@ function Chat() {
         </div>
       </div>
 
-      {/* Input */}
-      <div className="border-t border-kumo-line bg-kumo-base">
+      <div className="border-t border-[#282828] bg-black/80 backdrop-blur-xl">
         <form
           onSubmit={(e) => {
             e.preventDefault();
             send();
           }}
-          className="max-w-3xl mx-auto px-5 py-4"
+          className="max-w-3xl mx-auto px-5 py-6"
         >
           <input
             ref={fileInputRef}
@@ -956,7 +965,7 @@ function Chat() {
             </div>
           )}
 
-          <div className="flex items-end gap-3 rounded-xl border border-kumo-line bg-kumo-base p-3 shadow-sm focus-within:ring-2 focus-within:ring-kumo-ring focus-within:border-transparent transition-shadow">
+          <div className="flex items-end gap-3 rounded-2xl border border-[#282828] bg-[#121212] p-4 shadow-2xl focus-within:border-[#1DB954]/50 focus-within:ring-1 focus-within:ring-[#1DB954]/50 transition-all duration-300">
             <Button
               type="button"
               variant="ghost"
