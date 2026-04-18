@@ -323,6 +323,9 @@ export default {
       });
     }
 
-    return await routeAgentRequest(request, env);
+    const response = await routeAgentRequest(request, env);
+    if (response) return response;
+
+    return await env.ASSETS.fetch(request);
   }
 } satisfies ExportedHandler<Env>;

@@ -9,6 +9,7 @@ declare namespace Cloudflare {
 		AI: Ai;
 		ChatAgent: DurableObjectNamespace<import("./src/server").ChatAgent>;
 		TELEGRAM_BOT_TOKEN: string;
+		ASSETS: Fetcher;
 	}
 }
 interface Env extends Cloudflare.Env {}
