@@ -323,9 +323,6 @@ export default {
       });
     }
 
-    return (
-      (await routeAgentRequest(request, env)) ||
-      new Response("Not found", { status: 404 })
-    );
+    return await routeAgentRequest(request, env);
   }
 } satisfies ExportedHandler<Env>;

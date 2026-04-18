@@ -34,7 +34,7 @@ Try these prompts to see the different features:
 
 ## Project structure
 
-```
+```bash
 src/
   server.ts    # Chat agent with tools and scheduling
   app.tsx      # Chat UI built with Kumo components
@@ -197,7 +197,7 @@ const result = streamText({
 
 Create a `.env` file with your API key:
 
-```
+```bash
 OPENAI_API_KEY=your-key-here
 ```
 
@@ -218,7 +218,7 @@ const result = streamText({
 
 Create a `.env` file with your API key:
 
-```
+```bash
 ANTHROPIC_API_KEY=your-key-here
 ```
 
