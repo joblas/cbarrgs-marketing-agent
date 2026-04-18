@@ -650,10 +650,20 @@ function Chat({ user, onLogout }: ChatProps) {
               <CircleIcon
                 size={8}
                 weight="fill"
-                className={connected ? "text-kumo-success" : "text-kumo-danger"}
+                className={
+                  connected
+                    ? isStreaming
+                      ? "text-amber-500"
+                      : "text-emerald-500"
+                    : "text-red-500"
+                }
               />
               <Text size="xs" variant="secondary">
-                {connected ? "Connected" : "Disconnected"}
+                {isStreaming
+                  ? "Thinking..."
+                  : connected
+                    ? "Connected"
+                    : "Disconnected"}
               </Text>
             </div>
             <div className="flex items-center gap-1.5">
@@ -1087,6 +1097,26 @@ function Chat({ user, onLogout }: ChatProps) {
           })}
 
           <div ref={messagesEndRef} />
+
+          {isStreaming && (
+            <div className="flex justify-start px-4 py-2">
+              <div className="flex items-center gap-1">
+                <div
+                  className="w-2 h-2 rounded-full bg-amber-500 animate-bounce"
+                  style={{ animationDelay: "0ms" }}
+                />
+                <div
+                  className="w-2 h-2 rounded-full bg-amber-500 animate-bounce"
+                  style={{ animationDelay: "150ms" }}
+                />
+                <div
+                  className="w-2 h-2 rounded-full bg-amber-500 animate-bounce"
+                  style={{ animationDelay: "300ms" }}
+                />
+              </div>
+              <span className="ml-2 text-xs text-[#666]">Thinking...</span>
+            </div>
+          )}
         </div>
       </div>
 
