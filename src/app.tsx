@@ -404,8 +404,11 @@ function Chat({ user, onLogout }: ChatProps) {
     onOpen: useCallback(() => setConnected(true), []),
     onClose: useCallback(() => setConnected(false), []),
     onError: useCallback(
-      (error: Event) => console.error("WebSocket error:", error),
-      []
+      (error: Event) => {
+        console.error("WebSocket error:", error);
+        toasts.add({ title: "Connection error", description: "Check console for details", variant: "error" });
+      },
+      [toasts]
     ),
     onMcpUpdate: useCallback((state: MCPServersState) => {
       setMcpState(state);
