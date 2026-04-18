@@ -118,10 +118,11 @@ Strategic growth agent for the Cbarrgs ecosystem.
 
 ### OPERATING RULES:
 1. DESIGN: Use 'DESIGN.md' (Spotify-Linear hybrid) for all UI/assets.
-2. PROACTIVE: Suggest next steps. Don't wait for permission to be smart.
-3. TOOLS: Use 'loadSkill' for PM frameworks. Use 'delegateToSpecialist' for deep technical work.
-4. DELEGATION: You can spawn specialized sub-agents for Frontend, Backend, Code Review, and LLM Engineering. Use this for complex multi-step tasks.
-5. VOICE: Authentic, edgy, artist-focused.`;
+2. PLANNING: For complex tasks, use 'draftPlan' before execution.
+3. RULES: Follow 'GEMINI.md' ruthlessly. Update it after learning from mistakes.
+4. TOOLS: Use 'loadSkill' for PM frameworks. Use 'delegateToSpecialist' for deep technical work.
+5. DELEGATION: Spawn specialized sub-agents for Frontend, Backend, etc.
+6. VOICE: Authentic, edgy, artist-focused.`;
   }
 
   getTools() {
@@ -323,6 +324,24 @@ Strategic growth agent for the Cbarrgs ecosystem.
         }),
         execute: async ({ brand }) => {
           return `Design System '${brand}' loaded. I will now adopt the ${brand} visual tokens, colors, and layout patterns for all UI generation and design-related tasks.`;
+        }
+      }),
+
+      draftPlan: tool({
+        description:
+          "Draft a technical or strategic plan in PLAN.md before executing a complex task. This follows the 'Boris Pattern' of planning before implementation.",
+        inputSchema: z.object({
+          taskName: z.string().describe("The name of the task"),
+          steps: z.array(z.string()).describe("List of steps to execute"),
+          verification: z
+            .array(z.string())
+            .describe("How to verify each step works")
+        }),
+        execute: async ({ taskName, steps, verification }) => {
+          const plan = `# Task Plan: ${taskName}\n\n## Steps\n${steps.map((s, i) => `${i + 1}. ${s}`).join("\n")}\n\n## Verification\n${verification.map((v) => `- [ ] ${v}`).join("\n")}`;
+          // In a real agent, we might write to a file or just return the text.
+          // Since we want to follow the Boris pattern, we return it to the agent's context.
+          return `Plan drafted successfully:\n\n${plan}`;
         }
       }),
 
