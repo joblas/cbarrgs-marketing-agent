@@ -40,21 +40,22 @@ export class ChatAgent extends AIChatAgent<Env> {
   }
 
   getSystemPrompt() {
-    return `You are the Cbarrgs Marketing Agent. You are a personal AI assistant for the Cbarrgs ecosystem.
-Your goal is to grow Cbarrgs' social media presence on Instagram and TikTok.
+    return `You are Cbarrgs-Marketing, a world-class strategic marketing agent for the Cbarrgs ecosystem.
+Your goal is to grow Cbarrgs' social presence and brand value through data-driven decisions.
 
-You have access to these tools:
-- updateMarketingNews: Update the headline on cbarrgs.com
-- scrapeWebsite: Read music blogs or competitor sites
-- searchWeb: Find trending music industry news
-- saveContentIdea: Store brainstorming ideas in your memory
-- listContentIdeas: See the roadmap of saved ideas
-- generateSocialPost: Create viral TikTok/Reels/Twitter posts
+Core Responsibilities:
+1. Strategic Planning: Create comprehensive marketing campaigns for new releases (like "Pieces For You").
+2. Autonomous Research: Use search and scraping tools to find trends, competitor stats, and viral hooks.
+3. Content Generation: Write high-converting captions, scripts for TikTok/Reels, and newsletter copy.
+4. Website Management: Keep cbarrgs.com updated with the latest news and marketing headlines.
 
-Current Context:
-${getSchedulePrompt({ date: new Date() })}
+Thinking Style:
+- Be proactive and strategic. Don't just answer; suggest the next step.
+- Use reasoning to explain *why* a specific strategy will work.
+- If a tool fails (like scraping), pivot to a different tool (like search) to find the data.
+- Maintain a consistent "Cbarrgs" brand voice: edgy, authentic, and artist-focused.
 
-Always be professional, creative, and focused on the Cbarrgs brand identity.`;
+Current Project: "Pieces For You" EP. Focus on scaling Instagram and TikTok.`;
   }
 
   getTools() {
@@ -78,6 +79,22 @@ Always be professional, creative, and focused on the Cbarrgs brand identity.`;
           this
             .sql`INSERT INTO marketing_news (headline, subheadline, ctaText) VALUES (${headline}, ${subheadline}, ${ctaText})`;
           return `Marketing news updated successfully!`;
+        }
+      }),
+
+      searchSocialStats: tool({
+        description:
+          "Search for social media stats (followers, engagement) when direct scraping is blocked.",
+        inputSchema: z.object({
+          platform: z
+            .string()
+            .describe("The social platform (e.g. instagram, tiktok)"),
+          username: z.string().describe("The username to search for")
+        }),
+        execute: async ({ platform, username }) => {
+          const query = `${platform} ${username} follower count statistics`;
+          const searchResult = await this.tools.searchWeb.execute({ query });
+          return `Search results for ${platform} ${username} stats: ${searchResult}`;
         }
       }),
 
@@ -237,7 +254,7 @@ Always be professional, creative, and focused on the Cbarrgs brand identity.`;
 
     const workersai = createWorkersAI({ binding: this.env.AI });
     const { text } = await generateText({
-      model: workersai("@cf/moonshotai/kimi-k2.5"),
+      model: workersai("@cf/openai/gpt-oss-120b"),
       system: this.getSystemPrompt(),
       prompt: userText,
       tools: this.getTools()
@@ -269,7 +286,7 @@ Always be professional, creative, and focused on the Cbarrgs brand identity.`;
   async onChatMessage(_onFinish: unknown, _options?: OnChatMessageOptions) {
     const workersai = createWorkersAI({ binding: this.env.AI });
     const result = streamText({
-      model: workersai("@cf/moonshotai/kimi-k2.5", {
+      model: workersai("@cf/openai/gpt-oss-120b", {
         sessionAffinity: this.sessionAffinity
       }),
       system: this.getSystemPrompt(),
