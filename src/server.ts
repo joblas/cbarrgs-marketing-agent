@@ -125,8 +125,14 @@ If you need to use a specific framework, use the 'loadSkill' tool. You should al
 
 Design Systems Marketplace:
 You have access to 50+ world-class DESIGN.md files in your '.gemini/design' directory.
-Available systems include: stripe, linear, apple, vercel, supabase, and more.
-Use the 'loadDesignSystem' tool to adopt the visual identity of these brands. This is critical for making your marketing assets and UI updates look premium and professional.`;
+The primary design system for this agent is 'DESIGN.md' (Cbarrgs Vibe), which blends Spotify's cinematic dark with Linear's precision.
+
+Primary Frameworks:
+For every strategic task, you must prioritize the following 'Best Fit' skills:
+1. marketing-ideas: Use for creative brainstorming.
+2. gtm-strategy: Use for planning the "Pieces For You" rollout.
+3. growth-loops: Use for scaling followers from 2300 to 37k.
+4. value-proposition: Use to define the Cbarrgs brand identity.`;
   }
 
   getTools() {
