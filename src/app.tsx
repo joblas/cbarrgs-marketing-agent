@@ -614,28 +614,30 @@ function Chat({ user, onLogout }: ChatProps) {
         </div>
       )}
 
-      {/* Header */}
-      <header className="px-5 py-4 bg-black/80 backdrop-blur-xl border-b border-[#282828] sticky top-0 z-40">
+      {/* Header - Mobile responsive */}
+      <header className="px-2 sm:px-5 py-3 bg-black/90 backdrop-blur-xl border-b border-[#282828] sticky top-0 z-40">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <h1 className="flex items-center gap-3 text-lg font-bold tracking-tight text-white">
-              <div className="w-8 h-8 rounded-md overflow-hidden shadow-lg">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <h1 className="flex items-center gap-2 sm:text-lg font-bold tracking-tight text-white">
+              <div className="w-7 sm:w-8 h-7 sm:h-8 rounded-md overflow-hidden shadow-lg">
                 <img
                   src="/69bf9097-f272-4081-92a5-b04882068bdc.png"
                   alt="Cbarrgs"
                   className="w-full h-full object-cover"
                 />
               </div>
-              Cbarrgs Marketing Agent
+              <span className="hidden sm:inline">Cbarrgs Marketing Agent</span>
+              <span className="sm:hidden text-sm">Cbarrgs</span>
             </h1>
-            <Badge variant="secondary">
+            <Badge variant="secondary" className="hidden sm:flex">
               <ChatCircleDotsIcon size={12} weight="bold" className="mr-1" />
               {user.name}
             </Badge>
             <Button
               variant="secondary"
               size="sm"
-              className="text-amber-500"
+              className="text-amber-500 text-xs px-2"
+              title="Start a group chat"
               onClick={() =>
                 alert(
                   "Use the agent: createGroupChat tool to start a group chat"
@@ -932,7 +934,7 @@ function Chat({ user, onLogout }: ChatProps) {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-3xl mx-auto px-5 py-6 space-y-5">
+        <div className="max-w-3xl mx-auto px-2 sm:px-5 py-3 sm:py-6 space-y-5">
           {messages.length === 0 && (
             <Empty
               icon={<BrainIcon size={48} className="text-[#1DB954] mb-4" />}
@@ -1072,7 +1074,7 @@ function Chat({ user, onLogout }: ChatProps) {
                           key={i}
                           className="flex justify-end animate-in fade-in slide-in-from-right-4 duration-300"
                         >
-                          <div className="max-w-[85%] px-4 py-2.5 rounded-2xl rounded-br-none bg-[#1DB954] text-black font-medium shadow-lg shadow-[#1DB954]/10 leading-relaxed">
+                          <div className="max-w-[85%] sm:max-w-[85%] px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl rounded-br-none bg-[#1DB954] text-black font-medium shadow-lg shadow-amber-500/10 leading-relaxed text-sm sm:text-base">
                             {text}
                           </div>
                         </div>
@@ -1084,7 +1086,7 @@ function Chat({ user, onLogout }: ChatProps) {
                         key={i}
                         className="flex justify-start animate-in fade-in slide-in-from-left-4 duration-300"
                       >
-                        <div className="max-w-[85%] rounded-2xl rounded-bl-none bg-[#121212] border border-[#282828] text-white leading-relaxed shadow-xl">
+                        <div className="max-w-[90%] sm:max-w-[85%] rounded-2xl rounded-bl-none bg-[#121212] border border-[#282828] text-white leading-relaxed shadow-xl text-sm sm:text-base">
                           <Streamdown
                             className="sd-theme rounded-2xl rounded-bl-none p-4"
                             plugins={{ code }}
@@ -1131,7 +1133,7 @@ function Chat({ user, onLogout }: ChatProps) {
             e.preventDefault();
             send();
           }}
-          className="max-w-3xl mx-auto px-5 py-6"
+          className="max-w-3xl mx-auto px-2 sm:px-5 py-3 sm:py-6"
         >
           <input
             ref={fileInputRef}
@@ -1170,7 +1172,7 @@ function Chat({ user, onLogout }: ChatProps) {
             </div>
           )}
 
-          <div className="flex items-end gap-3 rounded-2xl border border-[#282828] bg-[#121212] p-4 shadow-2xl focus-within:border-[#1DB954]/50 focus-within:ring-1 focus-within:ring-[#1DB954]/50 transition-all duration-300">
+          <div className="flex items-end gap-2 sm:gap-3 rounded-2xl border border-[#282828] bg-[#121212] p-2 sm:p-4 shadow-2xl focus-within:border-amber-500/50 focus-within:ring-1 focus-within:ring-amber-500/50 transition-all duration-300">
             <Button
               type="button"
               variant="ghost"
