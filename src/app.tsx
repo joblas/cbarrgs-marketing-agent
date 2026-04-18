@@ -448,8 +448,9 @@ function Chat() {
       <header className="px-5 py-4 bg-kumo-base border-b border-kumo-line">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <h1 className="text-lg font-semibold text-kumo-default">
-              <span className="mr-2">⛅</span>Cbarrgs-Marketing
+            <h1 className="flex items-center gap-2 text-lg font-semibold text-kumo-default">
+              <img src="/logo.png" alt="Cbarrgs Logo" className="h-6 w-auto object-contain invert dark:invert-0" />
+              Cbarrgs-Marketing
             </h1>
             <Badge variant="secondary">
               <ChatCircleDotsIcon size={12} weight="bold" className="mr-1" />
