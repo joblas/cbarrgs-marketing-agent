@@ -1132,7 +1132,7 @@ function Chat({ user, onLogout }: ChatProps) {
             ref={fileInputRef}
             type="file"
             multiple
-            accept="image/*"
+            accept="image/*,.pdf,.doc,.docx,.txt,.md,.html,.css,.json"
             className="hidden"
             onChange={(e) => {
               if (e.target.files) addFiles(e.target.files);
@@ -1170,11 +1170,11 @@ function Chat({ user, onLogout }: ChatProps) {
               type="button"
               variant="ghost"
               shape="square"
-              aria-label="Attach images"
+              aria-label="Attach files (images, docs, links)"
               icon={<PaperclipIcon size={18} />}
               onClick={() => fileInputRef.current?.click()}
-              disabled={!connected || isStreaming}
-              className="mb-0.5"
+              disabled={isStreaming}
+              className="mb-0.5 text-[#888] hover:text-white"
             />
             <InputArea
               ref={textareaRef}
