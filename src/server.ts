@@ -23,7 +23,10 @@ onStart() {
       .sql`CREATE TABLE IF NOT EXISTS marketing_news (id INTEGER PRIMARY KEY, headline TEXT, subheadline TEXT, ctaText TEXT)`;
     this
       .sql`CREATE TABLE IF NOT EXISTS content_ideas (id INTEGER PRIMARY KEY, title TEXT, content TEXT, timestamp TEXT)`;
-    this.sql`CREATE TABLE IF NOT EXISTS knowledge_base (
+    try {
+      this.sql`DROP TABLE IF EXISTS knowledge_base`;
+    } catch {}
+    this.sql`CREATE TABLE knowledge_base (
         id INTEGER PRIMARY KEY, 
         content TEXT, 
         wing TEXT, 
@@ -37,7 +40,10 @@ onStart() {
     this
       .sql`CREATE INDEX IF NOT EXISTS idx_kb_timestamp ON knowledge_base (timestamp)`;
 
-    this.sql`CREATE TABLE IF NOT EXISTS agent_diary (
+    try {
+      this.sql`DROP TABLE IF EXISTS agent_diary`;
+    } catch {}
+    this.sql`CREATE TABLE agent_diary (
         id INTEGER PRIMARY KEY,
         entry TEXT,
         reflection TEXT,
@@ -46,8 +52,10 @@ onStart() {
     this
       .sql`CREATE INDEX IF NOT EXISTS idx_diary_timestamp ON agent_diary (timestamp)`;
 
-    this
-      .sql`CREATE TABLE IF NOT EXISTS users (
+    try {
+      this.sql`DROP TABLE IF EXISTS users`;
+    } catch {}
+    this.sql`CREATE TABLE users (
       id INTEGER PRIMARY KEY,
       email TEXT UNIQUE,
       name TEXT,
@@ -55,8 +63,10 @@ onStart() {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`;
 
-    this
-      .sql`CREATE TABLE IF NOT EXISTS user_sessions (
+    try {
+      this.sql`DROP TABLE IF EXISTS user_sessions`;
+    } catch {}
+    this.sql`CREATE TABLE user_sessions (
       id INTEGER PRIMARY KEY,
       user_email TEXT,
       session_id TEXT,
