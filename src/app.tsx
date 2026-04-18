@@ -91,6 +91,7 @@ function ThemeToggle() {
       icon={dark ? <SunIcon size={16} /> : <MoonIcon size={16} />}
       onClick={toggle}
       aria-label="Toggle theme"
+      title={dark ? "Switch to light mode" : "Switch to dark mode"}
     />
   );
 }
@@ -692,6 +693,7 @@ function Chat({ user, onLogout }: ChatProps) {
                 icon={<GearIcon size={16} />}
                 onClick={() => setShowSettings(!showSettings)}
                 aria-label="Settings"
+                title="Settings"
               />
               <Button
                 variant="secondary"
@@ -699,6 +701,7 @@ function Chat({ user, onLogout }: ChatProps) {
                 icon={<SignOutIcon size={16} />}
                 onClick={onLogout}
                 aria-label="Logout"
+                title="Sign out of your account"
               />
             </div>
             <div className="relative" ref={mcpPanelRef}>
@@ -706,6 +709,7 @@ function Chat({ user, onLogout }: ChatProps) {
                 variant="secondary"
                 icon={<PlugsConnectedIcon size={16} />}
                 onClick={() => setShowMcpPanel(!showMcpPanel)}
+                title="Manage external tools & APIs"
               >
                 MCP
                 {mcpToolCount > 0 && (
@@ -870,6 +874,7 @@ function Chat({ user, onLogout }: ChatProps) {
               variant="secondary"
               icon={<TrashIcon size={16} />}
               onClick={clearHistory}
+              title="Clear chat history"
             >
               Clear
             </Button>
@@ -1175,6 +1180,7 @@ function Chat({ user, onLogout }: ChatProps) {
               onClick={() => fileInputRef.current?.click()}
               disabled={isStreaming}
               className="mb-0.5 text-[#888] hover:text-white"
+              title="Attach images, documents, or files"
             />
             <InputArea
               ref={textareaRef}
@@ -1222,6 +1228,7 @@ function Chat({ user, onLogout }: ChatProps) {
                 }
                 icon={<PaperPlaneRightIcon size={18} />}
                 className="mb-0.5"
+                title="Send message (Enter)"
               />
             )}
           </div>
