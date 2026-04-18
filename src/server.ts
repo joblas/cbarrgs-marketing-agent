@@ -390,7 +390,7 @@ Strategic marketing agent for Cbarrgs ecosystem.
 
           const workersai = createWorkersAI({ binding: this.env.AI });
           const { text } = await generateText({
-            model: workersai("@cf/openai/gpt-oss-120b"),
+            model: workersai("@cf/meta/llama-3.1-8b-instruct"),
             system: systemPrompts[specialist],
             prompt: task
           });
@@ -499,7 +499,7 @@ Strategic marketing agent for Cbarrgs ecosystem.
 
     const workersai = createWorkersAI({ binding: this.env.AI });
     const { text } = await generateText({
-      model: workersai("@cf/openai/gpt-oss-120b"),
+      model: workersai("@cf/meta/llama-3.1-8b-instruct"),
       system: this.getSystemPrompt(),
       prompt: userText,
       tools: this.getTools()
@@ -531,7 +531,7 @@ Strategic marketing agent for Cbarrgs ecosystem.
   async onChatMessage(_onFinish: unknown, _options?: OnChatMessageOptions) {
     const workersai = createWorkersAI({ binding: this.env.AI });
     const result = streamText({
-      model: workersai("@cf/openai/gpt-oss-120b", {
+      model: workersai("@cf/meta/llama-3.1-8b-instruct", {
         sessionAffinity: this.sessionAffinity
       }),
       system: this.getSystemPrompt(),
@@ -540,7 +540,7 @@ Strategic marketing agent for Cbarrgs ecosystem.
         toolCalls: "before-last-2-messages"
       }),
       tools: this.getTools(),
-      stopWhen: stepCountIs(5)
+      stopWhen: stepCountIs(10)
     });
     return result.toUIMessageStreamResponse();
   }
