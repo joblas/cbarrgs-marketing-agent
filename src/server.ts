@@ -22,8 +22,21 @@ export class ChatAgent extends AIChatAgent<Env> {
       .sql`CREATE TABLE IF NOT EXISTS marketing_news (id INTEGER PRIMARY KEY, headline TEXT, subheadline TEXT, ctaText TEXT)`;
     this
       .sql`CREATE TABLE IF NOT EXISTS content_ideas (id INTEGER PRIMARY KEY, title TEXT, content TEXT, timestamp TEXT)`;
-    this
-      .sql`CREATE TABLE IF NOT EXISTS knowledge_base (id INTEGER PRIMARY KEY, content TEXT, metadata TEXT, source TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)`;
+    this.sql`CREATE TABLE IF NOT EXISTS knowledge_base (
+        id INTEGER PRIMARY KEY, 
+        content TEXT, 
+        wing TEXT, 
+        room TEXT, 
+        drawer TEXT, 
+        source TEXT, 
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+      )`;
+    this.sql`CREATE TABLE IF NOT EXISTS agent_diary (
+        id INTEGER PRIMARY KEY,
+        entry TEXT,
+        reflection TEXT,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+      )`;
 
     this.mcp.configureOAuthCallback({
       customHandler: (result) => {
@@ -70,14 +83,25 @@ export class ChatAgent extends AIChatAgent<Env> {
 
   getSystemPrompt() {
     const knowledge = this
-      .sql`SELECT content FROM knowledge_base ORDER BY timestamp DESC LIMIT 10`;
-    const context = [...knowledge].map((k) => k.content).join("\n---\n");
+      .sql`SELECT content, wing, room FROM knowledge_base ORDER BY timestamp DESC LIMIT 10`;
+    const context = [...knowledge]
+      .map((k) => `[${k.wing} > ${k.room}] ${k.content}`)
+      .join("\n---\n");
+
+    const diary = this
+      .sql`SELECT entry, reflection FROM agent_diary ORDER BY timestamp DESC LIMIT 5`;
+    const diaryContext = [...diary]
+      .map((d) => `Observation: ${d.entry}\nReflection: ${d.reflection}`)
+      .join("\n---\n");
 
     return `You are Cbarrgs-Marketing, a world-class strategic marketing agent for the Cbarrgs ecosystem.
 Your goal is to grow Cbarrgs' social presence and brand value through data-driven decisions.
 
-Knowledge Base Context (Loaded Docs/Links):
+The Palace (Knowledge Base):
 ${context || "No specific documents loaded yet."}
+
+Your Diary (Internal Reflections):
+${diaryContext || "No internal reflections yet."}
 
 Core Responsibilities:
 1. Strategic Planning: Create comprehensive marketing campaigns for new releases (like "Pieces For You").
@@ -166,15 +190,39 @@ Current Project: "Pieces For You" EP. Focus on scaling Instagram and TikTok.`;
 
       addKnowledge: tool({
         description:
-          "Add a document, link content, or important context to the agent's long-term memory.",
+          "Add a document, link, or important context to the agent's memory using the MemPalace structure.",
         inputSchema: z.object({
           content: z.string().describe("The text content or summary to store"),
-          source: z.string().describe("The source URL or file name")
+          source: z.string().describe("The source URL or file name"),
+          wing: z
+            .string()
+            .describe("The project or person this belongs to (e.g. Cbarrgs)"),
+          room: z.string().describe("The topic (e.g. Social Growth, Releases)"),
+          drawer: z
+            .string()
+            .optional()
+            .describe("Specific category or file name")
         }),
-        execute: async ({ content, source }) => {
+        execute: async ({ content, source, wing, room, drawer }) => {
           this
-            .sql`INSERT INTO knowledge_base (content, source) VALUES (${content}, ${source})`;
-          return `Knowledge successfully stored from: ${source}`;
+            .sql`INSERT INTO knowledge_base (content, source, wing, room, drawer) VALUES (${content}, ${source}, ${wing}, ${room}, ${drawer || null})`;
+          return `Knowledge stored in Palace [Wing: ${wing}, Room: ${room}] from ${source}`;
+        }
+      }),
+
+      saveToDiary: tool({
+        description:
+          "Save an internal reflection or 'diary entry' for the agent's long-term memory.",
+        inputSchema: z.object({
+          entry: z.string().describe("The observation or event to record"),
+          reflection: z
+            .string()
+            .describe("Your internal reasoning or strategic thought about it")
+        }),
+        execute: async ({ entry, reflection }) => {
+          this
+            .sql`INSERT INTO agent_diary (entry, reflection) VALUES (${entry}, ${reflection})`;
+          return "Diary entry saved to the Palace.";
         }
       }),
 
