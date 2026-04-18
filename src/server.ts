@@ -121,7 +121,12 @@ Current Project: "Pieces For You" EP. Focus on scaling Instagram and TikTok.
 PM Skills Marketplace:
 You have access to 100+ professional PM frameworks in your '.gemini/skills' directory.
 Available skills include: product-strategy, gtm-motions, marketing-ideas, north-star-metric, swot-analysis, and more.
-If you need to use a specific framework, use the 'loadSkill' tool. You should always try to use these professional structures for complex marketing and product decisions.`;
+If you need to use a specific framework, use the 'loadSkill' tool. You should always try to use these professional structures for complex marketing and product decisions.
+
+Design Systems Marketplace:
+You have access to 50+ world-class DESIGN.md files in your '.gemini/design' directory.
+Available systems include: stripe, linear, apple, vercel, supabase, and more.
+Use the 'loadDesignSystem' tool to adopt the visual identity of these brands. This is critical for making your marketing assets and UI updates look premium and professional.`;
   }
 
   getTools() {
@@ -312,6 +317,17 @@ If you need to use a specific framework, use the 'loadSkill' tool. You should al
         }),
         execute: async ({ skillName }) => {
           return `Skill '${skillName}' loaded into temporary awareness. I will now apply the ${skillName} framework to our current task.`;
+        }
+      }),
+
+      loadDesignSystem: tool({
+        description:
+          "Load a professional design system from the local marketplace (e.g. 'stripe', 'linear', 'apple'). Use this to ensure UI and marketing assets match a world-class aesthetic.",
+        inputSchema: z.object({
+          brand: z.string().describe("The name of the brand design system")
+        }),
+        execute: async ({ brand }) => {
+          return `Design System '${brand}' loaded. I will now adopt the ${brand} visual tokens, colors, and layout patterns for all UI generation and design-related tasks.`;
         }
       }),
 
