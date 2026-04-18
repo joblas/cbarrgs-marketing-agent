@@ -226,10 +226,18 @@ function Chat() {
   const [showDebug, setShowDebug] = useState(false);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [sessionId, setSessionId] = useState(() => {
+    const saved = localStorage.getItem("agent_session_id");
+    return saved || "default";
+  });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const toasts = useKumoToastManager();
+
+  useEffect(() => {
+    localStorage.setItem("agent_session_id", sessionId);
+  }, [sessionId]);
   const [mcpState, setMcpState] = useState<MCPServersState>({
     prompts: [],
     resources: [],
@@ -244,6 +252,7 @@ function Chat() {
 
   const agent = useAgent<ChatAgent>({
     agent: "ChatAgent",
+    name: sessionId,
     onOpen: useCallback(() => setConnected(true), []),
     onClose: useCallback(() => setConnected(false), []),
     onError: useCallback(
@@ -351,9 +360,8 @@ function Chat() {
   }, [isStreaming]);
 
   const addFiles = useCallback((files: FileList | File[]) => {
-    const images = Array.from(files).filter((f) => f.type.startsWith("image/"));
-    if (images.length === 0) return;
-    setAttachments((prev) => [...prev, ...images.map(createAttachment)]);
+    const newFiles = Array.from(files);
+    setAttachments((prev) => [...prev, ...newFiles.map(createAttachment)]);
   }, []);
 
   const removeAttachment = useCallback((id: string) => {
@@ -414,12 +422,26 @@ function Chat() {
       | { type: "text"; text: string }
       | { type: "file"; mediaType: string; url: string }
     > = [];
-    if (text) parts.push({ type: "text", text });
 
     for (const att of attachments) {
-      const dataUri = await fileToDataUri(att.file);
-      parts.push({ type: "file", mediaType: att.mediaType, url: dataUri });
+      if (att.mediaType.startsWith("image/")) {
+        const dataUri = await fileToDataUri(att.file);
+        parts.push({ type: "file", mediaType: att.mediaType, url: dataUri });
+      } else {
+        // Read text files and append to the message
+        try {
+          const content = await att.file.text();
+          parts.push({
+            type: "text",
+            text: `\n[File: ${att.file.name}]\n${content}`
+          });
+        } catch (e) {
+          console.error("Error reading file", e);
+        }
+      }
     }
+
+    if (text) parts.push({ type: "text", text });
 
     for (const att of attachments) URL.revokeObjectURL(att.preview);
     setAttachments([]);
@@ -481,7 +503,26 @@ function Chat() {
                 aria-label="Toggle debug mode"
               />
             </div>
-            <ThemeToggle />
+            <div className="flex items-center gap-2">
+              <div className="hidden sm:flex items-center gap-2 mr-2">
+                <Text variant="small" className="text-kumo-subtle">
+                  Session:
+                </Text>
+                <input
+                  value={sessionId}
+                  onChange={(e) => setSessionId(e.target.value)}
+                  className="bg-kumo-elevated border border-kumo-line rounded px-2 py-1 text-xs text-kumo-default focus:outline-none focus:ring-1 focus:ring-kumo-brand w-32"
+                  placeholder="Session ID"
+                />
+              </div>
+              <ThemeToggle />
+              <Button
+                variant="secondary"
+                shape="square"
+                icon={<GearIcon size={16} />}
+                onClick={() => setShowSettings(!showSettings)}
+              />
+            </div>
             <div className="relative" ref={mcpPanelRef}>
               <Button
                 variant="secondary"
@@ -657,6 +698,52 @@ function Chat() {
           </div>
         </div>
       </header>
+
+      {showSettings && (
+        <Surface className="max-w-3xl mx-auto w-full mt-4 p-6 border border-kumo-line rounded-xl animate-in fade-in slide-in-from-top-4 duration-200">
+          <div className="flex justify-between items-center mb-4">
+            <Text variant="heading3">Settings</Text>
+            <Button
+              variant="secondary"
+              shape="square"
+              size="sm"
+              icon={<XIcon size={16} />}
+              onClick={() => setShowSettings(false)}
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="flex flex-col gap-2">
+              <Text variant="small" weight="bold">
+                Session Name
+              </Text>
+              <Text variant="small" className="text-kumo-subtle mb-1">
+                A unique ID for this specific chat brain.
+              </Text>
+              <input
+                value={sessionId}
+                onChange={(e) => setSessionId(e.target.value)}
+                className="bg-kumo-base border border-kumo-line rounded-lg px-3 py-2 text-sm text-kumo-default focus:ring-2 focus:ring-kumo-brand focus:outline-none"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Text variant="small" weight="bold">
+                Admin Email
+              </Text>
+              <Text variant="small" className="text-kumo-subtle mb-1">
+                Access restricted features for Cbarrgs & Joe.
+              </Text>
+              <input
+                type="email"
+                placeholder="cbarrgs@gmail.com"
+                className="bg-kumo-base border border-kumo-line rounded-lg px-3 py-2 text-sm text-kumo-default focus:ring-2 focus:ring-kumo-brand focus:outline-none"
+              />
+            </div>
+          </div>
+          <div className="mt-6 flex justify-end">
+            <Button onClick={() => setShowSettings(false)}>Save Changes</Button>
+          </div>
+        </Surface>
+      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto">

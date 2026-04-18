@@ -22,6 +22,8 @@ export class ChatAgent extends AIChatAgent<Env> {
       .sql`CREATE TABLE IF NOT EXISTS marketing_news (id INTEGER PRIMARY KEY, headline TEXT, subheadline TEXT, ctaText TEXT)`;
     this
       .sql`CREATE TABLE IF NOT EXISTS content_ideas (id INTEGER PRIMARY KEY, title TEXT, content TEXT, timestamp TEXT)`;
+    this
+      .sql`CREATE TABLE IF NOT EXISTS knowledge_base (id INTEGER PRIMARY KEY, content TEXT, metadata TEXT, source TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)`;
 
     this.mcp.configureOAuthCallback({
       customHandler: (result) => {
@@ -67,8 +69,15 @@ export class ChatAgent extends AIChatAgent<Env> {
   }
 
   getSystemPrompt() {
+    const knowledge = this
+      .sql`SELECT content FROM knowledge_base ORDER BY timestamp DESC LIMIT 10`;
+    const context = [...knowledge].map((k) => k.content).join("\n---\n");
+
     return `You are Cbarrgs-Marketing, a world-class strategic marketing agent for the Cbarrgs ecosystem.
 Your goal is to grow Cbarrgs' social presence and brand value through data-driven decisions.
+
+Knowledge Base Context (Loaded Docs/Links):
+${context || "No specific documents loaded yet."}
 
 Core Responsibilities:
 1. Strategic Planning: Create comprehensive marketing campaigns for new releases (like "Pieces For You").
@@ -82,6 +91,7 @@ Thinking Style:
 - If a tool fails (like scraping), pivot to a different tool (like search) to find the data.
 - Maintain a consistent "Cbarrgs" brand voice: edgy, authentic, and artist-focused.
 
+Admin Access: cbarrgs@gmail.com and joe@joestechsolutions.com have full control.
 Current Project: "Pieces For You" EP. Focus on scaling Instagram and TikTok.`;
   }
 
@@ -151,6 +161,20 @@ Current Project: "Pieces For You" EP. Focus on scaling Instagram and TikTok.`;
           } catch (e: unknown) {
             return `Error scraping ${url}: ${e instanceof Error ? e.message : String(e)}`;
           }
+        }
+      }),
+
+      addKnowledge: tool({
+        description:
+          "Add a document, link content, or important context to the agent's long-term memory.",
+        inputSchema: z.object({
+          content: z.string().describe("The text content or summary to store"),
+          source: z.string().describe("The source URL or file name")
+        }),
+        execute: async ({ content, source }) => {
+          this
+            .sql`INSERT INTO knowledge_base (content, source) VALUES (${content}, ${source})`;
+          return `Knowledge successfully stored from: ${source}`;
         }
       }),
 
