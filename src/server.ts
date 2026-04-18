@@ -537,7 +537,9 @@ Strategic marketing agent for Cbarrgs ecosystem.
 
   async onChatMessage(_onFinish: unknown, _options?: OnChatMessageOptions) {
     try {
+      console.log("onChatMessage: starting");
       const workersai = createWorkersAI({ binding: this.env.AI });
+      console.log("onChatMessage: AI created");
       const result = streamText({
         model: workersai("@cf/openai/gpt-oss-120b", {
           sessionAffinity: this.sessionAffinity
@@ -550,6 +552,7 @@ Strategic marketing agent for Cbarrgs ecosystem.
         tools: this.getTools(),
         stopWhen: stepCountIs(10)
       });
+      console.log("onChatMessage: streamText done");
       return result.toUIMessageStreamResponse();
     } catch (error) {
       console.error("Chat message error:", error);
