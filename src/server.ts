@@ -140,7 +140,7 @@ export class ChatAgent extends AIChatAgent<Env> {
       .join("\n---\n");
 
     return `### ROLE: Cbarrgs AI Assistant
-Strategic marketing agent for Cbarrgs ecosystem.
+Strategic marketing agent for Cbarrgs ecosystem with advanced reasoning capabilities.
 
 ### CONTEXT:
 - Palace (Knowledge): ${context || "Empty"}
@@ -154,13 +154,22 @@ Strategic marketing agent for Cbarrgs ecosystem.
 - growth-loops: Scalable follower acquisition.
 - value-proposition: Brand positioning.
 
+### REASONING FRAMEWORK:
+When addressing complex queries:
+1. **Analyze**: Break down the question into key components
+2. **Research**: Consider relevant data, trends, and best practices
+3. **Synthesize**: Combine insights into coherent recommendations
+4. **Validate**: Check recommendations against constraints and goals
+5. **Present**: Deliver clear, actionable insights with explanations
+
 ### OPERATING RULES:
 1. DESIGN: Use 'claude' design system from .gemini/design/ for UI.
-2. PLANNING: Use 'draftPlan' for complex tasks.
-3. RULES: Follow 'GEMINI.md' for project norms.
-4. TOOLS: Use 'loadSkill' for PM frameworks. Use 'delegateToSpecialist' for technical work.
-5. DELEGATION: Spawn sub-agents for Frontend, Backend, Code Review.
-6. VOICE: Professional, helpful, strategic.`;
+2. PLANNING: For complex tasks, use 'draftPlan' before execution.
+3. RULES: Follow 'GEMINI.md' ruthlessly. Update it after learning from mistakes.
+4. TOOLS: Use 'loadSkill' for PM frameworks. Use 'delegateToSpecialist' for deep technical work.
+5. DELEGATION: Spawn specialized sub-agents for Frontend, Backend, Code Review, LLM Engineering.
+6. VOICE: Professional, helpful, strategic, and insightful.
+7. FORMATTING: Use markdown for readability. Use bullet points, headings, and short paragraphs when presenting information.`;
   }
 
   getTools() {
@@ -514,22 +523,31 @@ Strategic marketing agent for Cbarrgs ecosystem.
     };
     if (!tgUpdate.message || !tgUpdate.message.text) return;
     const chatId = tgUpdate.message.chat.id;
-    const userText = tgUpdate.message.text;
+    const _userText = tgUpdate.message.text;
 
     const workersai = createWorkersAI({ binding: this.env.AI });
-    const { text } = await generateText({
-      model: workersai("@cf/openai/gpt-oss-120b"),
+    const streamResult = streamText({
+      model: workersai("@cf/nvidia/nemotron-3-120b-a12b", {
+        sessionAffinity: this.sessionAffinity
+      }),
       system: this.getSystemPrompt(),
-      prompt: userText,
-      tools: this.getTools()
+      messages: pruneMessages({
+        messages: await convertToModelMessages(this.messages),
+        toolCalls: "before-last-2-messages"
+      }),
+      tools: this.getTools(),
+      stopWhen: stepCountIs(5)
     });
+
+    const response = await streamResult.toUIMessageStreamResponse();
+    const responseText = await response.text();
 
     await fetch(
       `https://api.telegram.org/bot${this.env.TELEGRAM_BOT_TOKEN}/sendMessage`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chat_id: chatId, text: text })
+        body: JSON.stringify({ chat_id: chatId, text: responseText })
       }
     );
   }
@@ -548,28 +566,20 @@ Strategic marketing agent for Cbarrgs ecosystem.
   }
 
   async onChatMessage(_onFinish: unknown, _options?: OnChatMessageOptions) {
-    try {
-      console.log("onChatMessage: starting");
-      const workersai = createWorkersAI({ binding: this.env.AI });
-      console.log("onChatMessage: AI created");
-      const result = streamText({
-        model: workersai("@cf/openai/gpt-oss-120b", {
-          sessionAffinity: this.sessionAffinity
-        }),
-        system: this.getSystemPrompt(),
-        messages: pruneMessages({
-          messages: await convertToModelMessages(this.messages),
-          toolCalls: "before-last-2-messages"
-        }),
-        tools: this.getTools(),
-        stopWhen: stepCountIs(10)
-      });
-      console.log("onChatMessage: streamText done");
-      return result.toUIMessageStreamResponse();
-    } catch (error) {
-      console.error("Chat message error:", error);
-      return new Response("Error: " + String(error), { status: 500 });
-    }
+    const workersai = createWorkersAI({ binding: this.env.AI });
+    const result = streamText({
+      model: workersai("@cf/nvidia/nemotron-3-120b-a12b", {
+        sessionAffinity: this.sessionAffinity
+      }),
+      system: this.getSystemPrompt(),
+      messages: pruneMessages({
+        messages: await convertToModelMessages(this.messages),
+        toolCalls: "before-last-2-messages"
+      }),
+      tools: this.getTools(),
+      stopWhen: stepCountIs(15)
+    });
+    return result.toUIMessageStreamResponse();
   }
 
   async executeTask(description: string, _task: Schedule<string>) {
