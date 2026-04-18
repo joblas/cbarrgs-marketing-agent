@@ -527,7 +527,7 @@ When addressing complex queries:
 
     const workersai = createWorkersAI({ binding: this.env.AI });
     const streamResult = streamText({
-      model: workersai("@cf/nvidia/nemotron-3-120b-a12b", {
+      model: workersai("@cf/qwen/qwq-32b", {
         sessionAffinity: this.sessionAffinity
       }),
       system: this.getSystemPrompt(),
@@ -568,7 +568,7 @@ When addressing complex queries:
   async onChatMessage(_onFinish: unknown, _options?: OnChatMessageOptions) {
     const workersai = createWorkersAI({ binding: this.env.AI });
     const result = streamText({
-      model: workersai("@cf/nvidia/nemotron-3-120b-a12b", {
+      model: workersai("@cf/qwen/qwq-32b", {
         sessionAffinity: this.sessionAffinity
       }),
       system: this.getSystemPrompt(),

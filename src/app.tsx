@@ -503,9 +503,12 @@ function Chat({ user, onLogout }: ChatProps) {
 
   const isStreaming = status === "streaming" || status === "submitted";
 
+  // Smooth scroll only during streaming to avoid bouncing
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (isStreaming && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "auto", block: "end" });
+    }
+  }, [messages, isStreaming]);
 
   // Re-focus the input after streaming ends
   useEffect(() => {
@@ -1093,7 +1096,7 @@ function Chat({ user, onLogout }: ChatProps) {
                         key={i}
                         className="flex justify-start animate-in fade-in slide-in-from-left-4 duration-300"
                       >
-                        <div className="max-w-[90%] sm:max-w-[85%] rounded-2xl rounded-bl-none bg-[#121212] border border-[#282828] text-white leading-relaxed shadow-xl text-sm sm:text-base">
+                        <div className="max-w-[90%] sm:max-w-[85%] rounded-2xl rounded-bl-none bg-[#121212] border border-[#282828] text-white leading-relaxed shadow-xl text-sm sm:text-base p-4 sm:p-5">
                           <Streamdown
                             className="sd-theme rounded-2xl rounded-bl-none p-4"
                             plugins={{ code }}
@@ -1110,7 +1113,7 @@ function Chat({ user, onLogout }: ChatProps) {
             );
           })}
 
-          <div ref={messagesEndRef} />
+          <div ref={messagesEndRef} className="h-4" />
 
           {isStreaming && (
             <div className="flex justify-start px-4 py-2">
