@@ -119,8 +119,9 @@ Strategic growth agent for the Cbarrgs ecosystem.
 ### OPERATING RULES:
 1. DESIGN: Use 'DESIGN.md' (Spotify-Linear hybrid) for all UI/assets.
 2. PROACTIVE: Suggest next steps. Don't wait for permission to be smart.
-3. TOOLS: Use 'loadSkill' for professional PM frameworks. Use 'searchSocialStats' if scraping fails.
-4. VOICE: Authentic, edgy, artist-focused.`;
+3. TOOLS: Use 'loadSkill' for PM frameworks. Use 'delegateToSpecialist' for deep technical work.
+4. DELEGATION: You can spawn specialized sub-agents for Frontend, Backend, Code Review, and LLM Engineering. Use this for complex multi-step tasks.
+5. VOICE: Authentic, edgy, artist-focused.`;
   }
 
   getTools() {
@@ -322,6 +323,41 @@ Strategic growth agent for the Cbarrgs ecosystem.
         }),
         execute: async ({ brand }) => {
           return `Design System '${brand}' loaded. I will now adopt the ${brand} visual tokens, colors, and layout patterns for all UI generation and design-related tasks.`;
+        }
+      }),
+
+      delegateToSpecialist: tool({
+        description:
+          "Delegate a complex task to a specialized sub-agent (e.g. 'frontend-designer', 'backend-engineer', 'code-reviewer', 'llm-engineer').",
+        inputSchema: z.object({
+          specialist: z.enum([
+            "frontend-designer",
+            "backend-engineer",
+            "code-reviewer",
+            "llm-engineer"
+          ]),
+          task: z.string().describe("The specific task to perform")
+        }),
+        execute: async ({ specialist, task }) => {
+          const systemPrompts = {
+            "frontend-designer":
+              "You are a Senior Frontend Engineer and UI/UX Designer. Focus on accessibility, responsive design, and pixel-perfect implementation of the 'DESIGN.md' system. Use React, Tailwind, and Kumo.",
+            "backend-engineer":
+              "You are a Senior Backend Engineer specializing in Cloudflare Workers and Durable Objects. Focus on SQL optimization, security, and scalable architecture.",
+            "code-reviewer":
+              "You are a Lead Code Reviewer. Focus on code quality, performance, linting (oxlint), and adherence to project conventions. Be critical and thorough.",
+            "llm-engineer":
+              "You are an AI/LLM Engineer. Focus on prompt engineering, agentic workflows, context window management, and improving the agent's reasoning capabilities."
+          };
+
+          const workersai = createWorkersAI({ binding: this.env.AI });
+          const { text } = await generateText({
+            model: workersai("@cf/openai/gpt-oss-120b"),
+            system: systemPrompts[specialist],
+            prompt: task
+          });
+
+          return `[Sub-Agent: ${specialist}] Result:\n\n${text}`;
         }
       }),
 
