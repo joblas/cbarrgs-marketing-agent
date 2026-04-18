@@ -390,7 +390,7 @@ Strategic marketing agent for Cbarrgs ecosystem.
 
           const workersai = createWorkersAI({ binding: this.env.AI });
           const { text } = await generateText({
-            model: workersai("@cf/meta/llama-3.1-8b-instruct"),
+            model: workersai("@cf/openai/gpt-oss-120b"),
             system: systemPrompts[specialist],
             prompt: task
           });
@@ -499,7 +499,7 @@ Strategic marketing agent for Cbarrgs ecosystem.
 
     const workersai = createWorkersAI({ binding: this.env.AI });
     const { text } = await generateText({
-      model: workersai("@cf/meta/llama-3.1-8b-instruct"),
+      model: workersai("@cf/openai/gpt-oss-120b"),
       system: this.getSystemPrompt(),
       prompt: userText,
       tools: this.getTools()
@@ -529,20 +529,25 @@ Strategic marketing agent for Cbarrgs ecosystem.
   }
 
   async onChatMessage(_onFinish: unknown, _options?: OnChatMessageOptions) {
-    const workersai = createWorkersAI({ binding: this.env.AI });
-    const result = streamText({
-      model: workersai("@cf/meta/llama-3.1-8b-instruct", {
-        sessionAffinity: this.sessionAffinity
-      }),
-      system: this.getSystemPrompt(),
-      messages: pruneMessages({
-        messages: await convertToModelMessages(this.messages),
-        toolCalls: "before-last-2-messages"
-      }),
-      tools: this.getTools(),
-      stopWhen: stepCountIs(10)
-    });
-    return result.toUIMessageStreamResponse();
+    try {
+      const workersai = createWorkersAI({ binding: this.env.AI });
+      const result = streamText({
+        model: workersai("@cf/openai/gpt-oss-120b", {
+          sessionAffinity: this.sessionAffinity
+        }),
+        system: this.getSystemPrompt(),
+        messages: pruneMessages({
+          messages: await convertToModelMessages(this.messages),
+          toolCalls: "before-last-2-messages"
+        }),
+        tools: this.getTools(),
+        stopWhen: stepCountIs(10)
+      });
+      return result.toUIMessageStreamResponse();
+    } catch (error) {
+      console.error("Chat message error:", error);
+      return new Response("Error: " + String(error), { status: 500 });
+    }
   }
 
   async executeTask(description: string, _task: Schedule<string>) {
