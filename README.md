@@ -1,8 +1,13 @@
-# Agent Starter
+# Cbarrgs Marketing Agent
 
-![npm i agents command](./npm-agents-banner.svg)
+Stateful AI marketing agent built on the Cloudflare Agents SDK.
 
-<a href="https://deploy.workers.cloudflare.com/?url=https://github.com/cloudflare/agents-starter"><img src="https://deploy.workers.cloudflare.com/button" alt="Deploy to Cloudflare"/></a>
+[![Sanity Check](https://github.com/joblas/cbarrgs-marketing-agent/actions/workflows/sanity-check.yml/badge.svg)](https://github.com/joblas/cbarrgs-marketing-agent/actions/workflows/sanity-check.yml)
+[![Deploy Agent](https://github.com/joblas/cbarrgs-marketing-agent/actions/workflows/deploy.yml/badge.svg)](https://github.com/joblas/cbarrgs-marketing-agent/actions/workflows/deploy.yml)
+
+**GitHub Repository:** [joblas/cbarrgs-marketing-agent](https://github.com/joblas/cbarrgs-marketing-agent)
+
+This agent is automatically deployed to Cloudflare on every push to the `main` branch.
 
 A starter template for building AI chat agents on Cloudflare, powered by the [Agents SDK](https://developers.cloudflare.com/agents/).
 
