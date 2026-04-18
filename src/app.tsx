@@ -230,6 +230,7 @@ function Chat() {
     const saved = localStorage.getItem("agent_session_id");
     return saved || "default";
   });
+  const [showSettings, setShowSettings] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -505,9 +506,7 @@ function Chat() {
             </div>
             <div className="flex items-center gap-2">
               <div className="hidden sm:flex items-center gap-2 mr-2">
-                <Text variant="small" className="text-kumo-subtle">
-                  Session:
-                </Text>
+                <Text variant="secondary">Session:</Text>
                 <input
                   value={sessionId}
                   onChange={(e) => setSessionId(e.target.value)}
@@ -521,6 +520,7 @@ function Chat() {
                 shape="square"
                 icon={<GearIcon size={16} />}
                 onClick={() => setShowSettings(!showSettings)}
+                aria-label="Settings"
               />
             </div>
             <div className="relative" ref={mcpPanelRef}>
@@ -709,14 +709,13 @@ function Chat() {
               size="sm"
               icon={<XIcon size={16} />}
               onClick={() => setShowSettings(false)}
+              aria-label="Close settings"
             />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
-              <Text variant="small" weight="bold">
-                Session Name
-              </Text>
-              <Text variant="small" className="text-kumo-subtle mb-1">
+              <Text variant="heading3">Session Name</Text>
+              <Text variant="secondary">
                 A unique ID for this specific chat brain.
               </Text>
               <input
@@ -726,10 +725,8 @@ function Chat() {
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Text variant="small" weight="bold">
-                Admin Email
-              </Text>
-              <Text variant="small" className="text-kumo-subtle mb-1">
+              <Text variant="heading3">Admin Email</Text>
+              <Text variant="secondary">
                 Access restricted features for Cbarrgs & Joe.
               </Text>
               <input
@@ -740,7 +737,12 @@ function Chat() {
             </div>
           </div>
           <div className="mt-6 flex justify-end">
-            <Button onClick={() => setShowSettings(false)}>Save Changes</Button>
+            <Button
+              onClick={() => setShowSettings(false)}
+              aria-label="Save changes"
+            >
+              Save Changes
+            </Button>
           </div>
         </Surface>
       )}
