@@ -4,7 +4,7 @@ STOP. Your knowledge of Cloudflare Workers APIs and limits may be outdated. Alwa
 
 ## Docs
 
-- https://developers.cloudflare.com/workers/
+- <https://developers.cloudflare.com/workers/>
 - MCP: `https://docs.mcp.cloudflare.com/mcp`
 
 For all limits and quotas, retrieve from the product's `/platform/limits/` page. eg. `/workers/platform/limits`
@@ -21,12 +21,12 @@ Run `wrangler types` after changing bindings in wrangler.jsonc.
 
 ## Node.js Compatibility
 
-https://developers.cloudflare.com/workers/runtime-apis/nodejs/
+<https://developers.cloudflare.com/workers/runtime-apis/nodejs/>
 
 ## Errors
 
 - **Error 1102** (CPU/Memory exceeded): Retrieve limits from `/workers/platform/limits/`
-- **All errors**: https://developers.cloudflare.com/workers/observability/errors/
+- **All errors**: <https://developers.cloudflare.com/workers/observability/errors/>
 
 ## Product Docs
 
@@ -37,5 +37,5 @@ Retrieve API references and limits from:
 
 If the application uses Durable Objects or Workflows, refer to the relevant best practices:
 
-- Durable Objects: https://developers.cloudflare.com/durable-objects/best-practices/rules-of-durable-objects/
-- Workflows: https://developers.cloudflare.com/workflows/build/rules-of-workflows/
+- Durable Objects: <https://developers.cloudflare.com/durable-objects/best-practices/rules-of-durable-objects/>
+- Workflows: <https://developers.cloudflare.com/workflows/build/rules-of-workflows/>
