@@ -17,16 +17,16 @@ export class ChatAgent extends AIChatAgent<Env> {
   // Max messages to keep in history
   maxPersistedMessages = 100;
 
-onStart() {
+  onStart() {
     try {
-    this
-      .sql`CREATE TABLE IF NOT EXISTS marketing_news (id INTEGER PRIMARY KEY, headline TEXT, subheadline TEXT, ctaText TEXT)`;
-    this
-      .sql`CREATE TABLE IF NOT EXISTS content_ideas (id INTEGER PRIMARY KEY, title TEXT, content TEXT, timestamp TEXT)`;
-    try {
-      this.sql`DROP TABLE IF EXISTS knowledge_base`;
-    } catch {}
-    this.sql`CREATE TABLE knowledge_base (
+      this
+        .sql`CREATE TABLE IF NOT EXISTS marketing_news (id INTEGER PRIMARY KEY, headline TEXT, subheadline TEXT, ctaText TEXT)`;
+      this
+        .sql`CREATE TABLE IF NOT EXISTS content_ideas (id INTEGER PRIMARY KEY, title TEXT, content TEXT, timestamp TEXT)`;
+      try {
+        this.sql`DROP TABLE IF EXISTS knowledge_base`;
+      } catch {}
+      this.sql`CREATE TABLE knowledge_base (
         id INTEGER PRIMARY KEY, 
         content TEXT, 
         wing TEXT, 
@@ -35,27 +35,27 @@ onStart() {
         source TEXT, 
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
       )`;
-    this
-      .sql`CREATE INDEX IF NOT EXISTS idx_kb_wing_room ON knowledge_base (wing, room)`;
-    this
-      .sql`CREATE INDEX IF NOT EXISTS idx_kb_timestamp ON knowledge_base (timestamp)`;
+      this
+        .sql`CREATE INDEX IF NOT EXISTS idx_kb_wing_room ON knowledge_base (wing, room)`;
+      this
+        .sql`CREATE INDEX IF NOT EXISTS idx_kb_timestamp ON knowledge_base (timestamp)`;
 
-    try {
-      this.sql`DROP TABLE IF EXISTS agent_diary`;
-    } catch {}
-    this.sql`CREATE TABLE agent_diary (
+      try {
+        this.sql`DROP TABLE IF EXISTS agent_diary`;
+      } catch {}
+      this.sql`CREATE TABLE agent_diary (
         id INTEGER PRIMARY KEY,
         entry TEXT,
         reflection TEXT,
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
       )`;
-    this
-      .sql`CREATE INDEX IF NOT EXISTS idx_diary_timestamp ON agent_diary (timestamp)`;
+      this
+        .sql`CREATE INDEX IF NOT EXISTS idx_diary_timestamp ON agent_diary (timestamp)`;
 
-    try {
-      this.sql`DROP TABLE IF EXISTS users`;
-    } catch {}
-    this.sql`CREATE TABLE users (
+      try {
+        this.sql`DROP TABLE IF EXISTS users`;
+      } catch {}
+      this.sql`CREATE TABLE users (
       id INTEGER PRIMARY KEY,
       email TEXT UNIQUE,
       name TEXT,
@@ -63,10 +63,10 @@ onStart() {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`;
 
-    try {
-      this.sql`DROP TABLE IF EXISTS user_sessions`;
-    } catch {}
-    this.sql`CREATE TABLE user_sessions (
+      try {
+        this.sql`DROP TABLE IF EXISTS user_sessions`;
+      } catch {}
+      this.sql`CREATE TABLE user_sessions (
       id INTEGER PRIMARY KEY,
       user_email TEXT,
       session_id TEXT,
@@ -75,8 +75,8 @@ onStart() {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`;
 
-    this
-      .sql`CREATE INDEX IF NOT EXISTS idx_sessions_user ON user_sessions(user_email)`;
+      this
+        .sql`CREATE INDEX IF NOT EXISTS idx_sessions_user ON user_sessions(user_email)`;
     } catch (e) {
       console.error("onStart error:", e);
     }
@@ -118,7 +118,7 @@ onStart() {
         const link = $(el).find(".result__url").text().trim();
         results.push(`Title: ${title}\nSnippet: ${snippet}\nURL: ${link}`);
       });
-      return results.length > 0 ? results.join("\n\n") : "No results found.";
+       return results.length > 0 ? results.join("\n\n---\n\n") : "No results found.";
     } catch (e: unknown) {
       return `Error searching: ${e instanceof Error ? e.message : String(e)}`;
     }
