@@ -118,7 +118,9 @@ export class ChatAgent extends AIChatAgent<Env> {
         const link = $(el).find(".result__url").text().trim();
         results.push(`Title: ${title}\nSnippet: ${snippet}\nURL: ${link}`);
       });
-       return results.length > 0 ? results.join("\n\n---\n\n") : "No results found.";
+      return results.length > 0
+        ? results.join("\n\n---\n\n")
+        : "No results found.";
     } catch (e: unknown) {
       return `Error searching: ${e instanceof Error ? e.message : String(e)}`;
     }
