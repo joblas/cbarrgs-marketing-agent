@@ -7,7 +7,8 @@ import {
   streamText,
   tool,
   generateText,
-  convertToModelMessages
+  convertToModelMessages,
+  pruneMessages
 } from "ai";
 import { z } from "zod";
 import * as cheerio from "cheerio";
@@ -272,7 +273,10 @@ Always be professional, creative, and focused on the Cbarrgs brand identity.`;
         sessionAffinity: this.sessionAffinity
       }),
       system: this.getSystemPrompt(),
-      messages: await convertToModelMessages(this.messages),
+      messages: pruneMessages({
+        messages: await convertToModelMessages(this.messages),
+        toolCalls: "before-last-2-messages"
+      }),
       tools: this.getTools(),
       stopWhen: stepCountIs(5)
     });
