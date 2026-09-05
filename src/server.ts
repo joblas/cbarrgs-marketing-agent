@@ -589,11 +589,20 @@ When addressing complex queries:
 
   @callable()
   async getNews() {
-    const rows = [
-      ...this
-        .sql`SELECT headline, subheadline, ctaText, version FROM marketing_news ORDER BY id DESC LIMIT 1`
-    ] as NewsRow[];
-    return pickNews(rows[0]);
+    // /api/news reaches this via a raw DO stub RPC, which does not run onStart()
+    // on a cold wake. If the version column has not been added yet on this
+    // storage, no row can carry the current version, so the code default is
+    // exactly right — never a 500 on the public endpoint.
+    try {
+      const rows = [
+        ...this
+          .sql`SELECT headline, subheadline, ctaText, version FROM marketing_news ORDER BY id DESC LIMIT 1`
+      ] as NewsRow[];
+      return pickNews(rows[0]);
+    } catch (e) {
+      console.warn("getNews: serving code default", e);
+      return pickNews(undefined);
+    }
   }
 
   async onChatMessage(_onFinish: unknown, _options?: OnChatMessageOptions) {
