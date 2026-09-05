@@ -146,7 +146,7 @@ Strategic marketing agent for Cbarrgs ecosystem with advanced reasoning capabili
 - Palace (Knowledge): ${context || "Empty"}
 - Diary (Reasoning): ${diaryContext || "None"}
 - Admin: cbarrgs@gmail.com, joe@joestechsolutions.com
-- Focus: "Pieces For You" EP Rollout
+- Focus: "Solitude" Single Rollout (single released Aug 19, 2026; EP "Pieces For You" April 25, 2026 stays in catalog)
 
 ### CORE SKILLS:
 - marketing-ideas: Creative cost-effective growth.
@@ -559,9 +559,9 @@ When addressing complex queries:
     const rows = [...results];
     if (rows.length > 0) return rows[0];
     return {
-      headline: '"Pieces For You" EP &middot; Out Now!',
-      subheadline: "New tees & pins just arrived &middot; Shop Now",
-      ctaText: "Listen to the new EP &middot; Shop Merch"
+      headline: '"Solitude" Single &middot; Out Now!',
+      subheadline: "Stream the new single &middot; Shop official merch",
+      ctaText: "Listen to Solitude &middot; Shop Merch"
     };
   }
 

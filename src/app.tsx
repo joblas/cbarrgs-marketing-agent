@@ -957,7 +957,7 @@ function Chat({ user, onLogout }: ChatProps) {
                   </div>
                   <div className="flex flex-wrap justify-center gap-3">
                     {[
-                      "Plan 'Pieces For You' Instagram rollout",
+                      "Plan 'Solitude' Instagram rollout",
                       "Analyze current social media trends",
                       "Draft TikTok script for new merch",
                       "How do we get to 37k followers?"
