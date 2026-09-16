@@ -13,6 +13,35 @@ import {
 import { z } from "zod";
 import * as cheerio from "cheerio";
 
+// Code-owned default hero copy served by /api/news. Bump NEWS_VERSION whenever
+// this copy changes: getNews() ignores any stored row written under an older
+// version, so deploying new copy takes effect on its own. Rows written by the
+// updateMarketingNews tool carry the current version and win until the next bump.
+const NEWS_VERSION = 2;
+const DEFAULT_NEWS = {
+  headline: '"Solitude" Single &middot; Out Now!',
+  subheadline: "Stream the new single &middot; Shop official merch",
+  ctaText: "Listen to Solitude &middot; Shop Merch"
+};
+
+type NewsRow = {
+  headline: string;
+  subheadline: string;
+  ctaText: string;
+  version?: number | null;
+};
+
+export function pickNews(latest: NewsRow | undefined): NewsRow {
+  if (latest && Number(latest.version ?? 0) >= NEWS_VERSION) {
+    return {
+      headline: latest.headline,
+      subheadline: latest.subheadline,
+      ctaText: latest.ctaText
+    };
+  }
+  return DEFAULT_NEWS;
+}
+
 export class ChatAgent extends AIChatAgent<Env> {
   // Max messages to keep in history
   maxPersistedMessages = 100;
@@ -21,6 +50,12 @@ export class ChatAgent extends AIChatAgent<Env> {
     try {
       this
         .sql`CREATE TABLE IF NOT EXISTS marketing_news (id INTEGER PRIMARY KEY, headline TEXT, subheadline TEXT, ctaText TEXT)`;
+      try {
+        this
+          .sql`ALTER TABLE marketing_news ADD COLUMN version INTEGER NOT NULL DEFAULT 0`;
+      } catch {
+        // column already exists
+      }
       this
         .sql`CREATE TABLE IF NOT EXISTS content_ideas (id INTEGER PRIMARY KEY, title TEXT, content TEXT, timestamp TEXT)`;
       try {
@@ -146,7 +181,7 @@ Strategic marketing agent for Cbarrgs ecosystem with advanced reasoning capabili
 - Palace (Knowledge): ${context || "Empty"}
 - Diary (Reasoning): ${diaryContext || "None"}
 - Admin: cbarrgs@gmail.com, joe@joestechsolutions.com
-- Focus: "Pieces For You" EP Rollout
+- Focus: "Solitude" Single Rollout (single released Aug 19, 2026; EP "Pieces For You" April 25, 2026 stays in catalog)
 
 ### CORE SKILLS:
 - marketing-ideas: Creative cost-effective growth.
@@ -191,7 +226,7 @@ When addressing complex queries:
         }),
         execute: async ({ headline, subheadline, ctaText }) => {
           this
-            .sql`INSERT INTO marketing_news (headline, subheadline, ctaText) VALUES (${headline}, ${subheadline}, ${ctaText})`;
+            .sql`INSERT INTO marketing_news (headline, subheadline, ctaText, version) VALUES (${headline}, ${subheadline}, ${ctaText}, ${NEWS_VERSION})`;
           return `Marketing news updated successfully!`;
         }
       }),
@@ -554,15 +589,20 @@ When addressing complex queries:
 
   @callable()
   async getNews() {
-    const results = this
-      .sql`SELECT * FROM marketing_news ORDER BY id DESC LIMIT 1`;
-    const rows = [...results];
-    if (rows.length > 0) return rows[0];
-    return {
-      headline: '"Pieces For You" EP &middot; Out Now!',
-      subheadline: "New tees & pins just arrived &middot; Shop Now",
-      ctaText: "Listen to the new EP &middot; Shop Merch"
-    };
+    // /api/news reaches this via a raw DO stub RPC, which does not run onStart()
+    // on a cold wake. If the version column has not been added yet on this
+    // storage, no row can carry the current version, so the code default is
+    // exactly right — never a 500 on the public endpoint.
+    try {
+      const rows = [
+        ...this
+          .sql`SELECT headline, subheadline, ctaText, version FROM marketing_news ORDER BY id DESC LIMIT 1`
+      ] as NewsRow[];
+      return pickNews(rows[0]);
+    } catch (e) {
+      console.warn("getNews: serving code default", e);
+      return pickNews(undefined);
+    }
   }
 
   async onChatMessage(_onFinish: unknown, _options?: OnChatMessageOptions) {
