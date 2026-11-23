@@ -17,11 +17,11 @@ import * as cheerio from "cheerio";
 // this copy changes: getNews() ignores any stored row written under an older
 // version, so deploying new copy takes effect on its own. Rows written by the
 // updateMarketingNews tool carry the current version and win until the next bump.
-const NEWS_VERSION = 2;
+const NEWS_VERSION = 3;
 const DEFAULT_NEWS = {
-  headline: '"Solitude" Single &middot; Out Now!',
-  subheadline: "Stream the new single &middot; Shop official merch",
-  ctaText: "Listen to Solitude &middot; Shop Merch"
+  headline: '"No Vengas A llorar" Single · Out Now!',
+  subheadline: "Stream the new single · Shop official merch",
+  ctaText: "Listen to No Vengas A llorar · Shop Merch"
 };
 
 type NewsRow = {
@@ -181,7 +181,7 @@ Strategic marketing agent for Cbarrgs ecosystem with advanced reasoning capabili
 - Palace (Knowledge): ${context || "Empty"}
 - Diary (Reasoning): ${diaryContext || "None"}
 - Admin: cbarrgs@gmail.com, joe@joestechsolutions.com
-- Focus: "Solitude" Single Rollout (single released Aug 19, 2026; EP "Pieces For You" April 25, 2026 stays in catalog)
+- Focus: "No Vengas A llorar" Single Rollout (single released Oct 23, 2026; EP "Pieces For You" April 25, 2026 stays in catalog)
 
 ### CORE SKILLS:
 - marketing-ideas: Creative cost-effective growth.
