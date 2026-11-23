@@ -13,15 +13,19 @@ import {
 import { z } from "zod";
 import * as cheerio from "cheerio";
 
-// Code-owned default hero copy served by /api/news. Bump NEWS_VERSION whenever
-// this copy changes: getNews() ignores any stored row written under an older
-// version, so deploying new copy takes effect on its own. Rows written by the
-// updateMarketingNews tool carry the current version and win until the next bump.
-const NEWS_VERSION = 2;
+// Code-owned default served by /api/news when no stored row carries the current
+// NEWS_VERSION. Deliberately empty: this worker has no source for the current
+// release, so any release named here goes stale. Consumers read empty fields as
+// "no news" and fall back to their own release-aware copy (the site's hero
+// does). Bump NEWS_VERSION whenever this default changes: getNews() ignores any
+// stored row written under an older version, so a deploy takes effect on its
+// own. Rows written by the updateMarketingNews tool carry the current version
+// and win until the next bump.
+const NEWS_VERSION = 3;
 const DEFAULT_NEWS = {
-  headline: '"Solitude" Single &middot; Out Now!',
-  subheadline: "Stream the new single &middot; Shop official merch",
-  ctaText: "Listen to Solitude &middot; Shop Merch"
+  headline: "",
+  subheadline: "",
+  ctaText: ""
 };
 
 type NewsRow = {
